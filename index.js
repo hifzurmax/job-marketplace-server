@@ -54,6 +54,7 @@ async function run() {
         await client.connect();
 
         const jobsCollection = client.db('taskHub').collection('jobs')
+        const bidCollection = client.db('taskHub').collection('bids')
 
 
         //Auth related API
@@ -96,6 +97,28 @@ async function run() {
             res.send(result);
         })
 
+
+        // app.get('/mybids', verifyToken, async (req, res) => {
+        //     if (req.user.email !== req.query.email) {
+        //         return res.status(403).send({ message: 'forbidden access' });
+        //     }
+        //     let query = {};
+        //     if (req.query?.email) {
+        //         query = { email: req.query.email };
+        //     }
+        //     const result = await bidCollection.find(query).toArray();
+        //     res.send(result);
+        // });
+        
+
+
+        app.get('/mybids', async (req, res) => {
+            let query = req.params.email;
+            const result= await bidCollection.find(query).toArray();
+            res.send(result)
+        })
+
+
         app.get('/jobs/:category', async (req, res) => {
             const category = req.params.category;
             const query = { category: category };
@@ -104,7 +127,17 @@ async function run() {
         });
 
 
+
         app.get('/job/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await jobsCollection.findOne(query);
+            res.send(result);
+        })
+
+
+
+        app.get('/jobdetails/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await jobsCollection.findOne(query);
@@ -124,6 +157,13 @@ async function run() {
         app.post('/job', async (req, res) => {
             const newJob = req.body;
             const result = await jobsCollection.insertOne(newJob);
+            res.send(result);
+        })
+
+
+        app.post('/bid', async (req, res) => {
+            const bid = req.body;
+            const result = await bidCollection.insertOne(bid);
             res.send(result);
         })
 
