@@ -124,7 +124,13 @@ async function run() {
 
 
 
-        // ekene
+        app.get('/jobs/:category', async (req, res) => {
+            const category = req.params.category;
+            const query = { category: category };
+            const result = await jobsCollection.find(query).toArray();
+            res.send(result);
+        });
+
 
 
         app.get('/job/:id', async (req, res) => {
