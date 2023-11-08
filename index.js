@@ -54,13 +54,12 @@ async function run() {
         await client.connect();
 
         const jobsCollection = client.db('taskHub').collection('jobs')
-        const bidCollection = client.db('taskHub').collection('bids')
+        const bidsCollection = client.db('taskHub').collection('bids')
 
 
         //Auth related API
         app.post('/jwt', async (req, res) => {
             const user = req.body;
-            console.log(user);
             const token = jwt.sign(user, process.env.SECRETE, {
                 expiresIn: '1h'
             })
@@ -83,9 +82,9 @@ async function run() {
 
 
 
-        //jobs related API
+        //Secure APIs
+        
         app.get('/myjobs', verifyToken, async (req, res) => {
-
             if (req.user.email !== req.query.email) {
                 return res.status(403).send({ message: 'forbidden access' });
             }
@@ -96,6 +95,26 @@ async function run() {
             const result = await jobsCollection.find(query).toArray();
             res.send(result);
         })
+
+
+
+        // app.get('/bidrequests', verifyToken, async (req, res) => {
+        //     if (req.user.email !== req.query.email) {
+        //         return res.status(403).send({ message: 'forbidden access' });
+        //     }
+        //     console.log('user from decode:', req.user.email);
+
+        //     let query = {};
+        //     if (req.query?.email) {
+        //         query = { email: req.query.email };
+        //         console.log('email set hoise query te:', req.query.email);
+        //     }
+        //     const result = await bidsCollection.find(query).toArray();
+        //     res.send(result);
+
+        // })
+
+
 
 
         // app.get('/mybids', verifyToken, async (req, res) => {
@@ -109,14 +128,21 @@ async function run() {
         //     const result = await bidCollection.find(query).toArray();
         //     res.send(result);
         // });
-        
+
 
 
         app.get('/mybids', async (req, res) => {
             let query = req.params.email;
-            const result= await bidCollection.find(query).toArray();
+            const result = await bidCollection.find(query).toArray();
             res.send(result)
         })
+
+
+        // app.get('/bidrequests', async (req, res) => {
+        //     const result = await bidCollection.find().toArray();
+        //     res.send(result);
+        // });
+
 
 
         app.get('/jobs/:category', async (req, res) => {
