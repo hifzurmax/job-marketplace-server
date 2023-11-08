@@ -11,7 +11,9 @@ const port = process.env.PORT || 5000;
 //middleware
 app.use(cors({
     origin: [
-        'http://localhost:5173'
+        'http://localhost:5173',
+        'https://taskhub-7bbe0.web.app',
+        'https://taskhub-7bbe0.firebaseapp.com'
     ],
     credentials: true
 }));
@@ -54,7 +56,7 @@ async function run() {
         await client.connect();
 
         const jobsCollection = client.db('taskHub').collection('jobs')
-        const bidsCollection = client.db('taskHub').collection('bids')
+        const bidCollection = client.db('taskHub').collection('bids')
 
 
         //Auth related API
@@ -83,7 +85,7 @@ async function run() {
 
 
         //Secure APIs
-        
+
         app.get('/myjobs', verifyToken, async (req, res) => {
             if (req.user.email !== req.query.email) {
                 return res.status(403).send({ message: 'forbidden access' });
@@ -97,51 +99,33 @@ async function run() {
         })
 
 
+        app.get('/mybids', verifyToken, async (req, res) => {
+            if (req.user.email !== req.query.email) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+            let query = {};
+            if (req.query?.email) {
+                console.log(req.query.email);
 
-        // app.get('/bidrequests', verifyToken, async (req, res) => {
-        //     if (req.user.email !== req.query.email) {
-        //         return res.status(403).send({ message: 'forbidden access' });
-        //     }
-        //     console.log('user from decode:', req.user.email);
-
-        //     let query = {};
-        //     if (req.query?.email) {
-        //         query = { email: req.query.email };
-        //         console.log('email set hoise query te:', req.query.email);
-        //     }
-        //     const result = await bidsCollection.find(query).toArray();
-        //     res.send(result);
-
-        // })
-
-
-
-
-        // app.get('/mybids', verifyToken, async (req, res) => {
-        //     if (req.user.email !== req.query.email) {
-        //         return res.status(403).send({ message: 'forbidden access' });
-        //     }
-        //     let query = {};
-        //     if (req.query?.email) {
-        //         query = { email: req.query.email };
-        //     }
-        //     const result = await bidCollection.find(query).toArray();
-        //     res.send(result);
-        // });
-
-
-
-        app.get('/mybids', async (req, res) => {
-            let query = req.params.email;
+                query = { emailBidder: req.query.email };
+                console.log('query',query.emailBidder);
+            }
             const result = await bidCollection.find(query).toArray();
-            res.send(result)
-        })
+            console.log(result);
+            res.send(result);
+        });
 
+        //Problem : 03
 
-        // app.get('/bidrequests', async (req, res) => {
-        //     const result = await bidCollection.find().toArray();
-        //     res.send(result);
-        // });
+        app.get('/bidrequests', async (req, res) => {
+            
+            console.log(req.query);
+            if (req.query?.email) {
+                query = { emailBuyer: req.query?.email };
+            }
+            const result = await bidCollection.find(query).toArray();
+            res.send(result);
+        });
 
 
 
@@ -203,6 +187,7 @@ async function run() {
                 $set: {
                     title: updateJob.title,
                     category: updateJob.category,
+                    image: updateJob.image,
                     minPrice: updateJob.minPrice,
                     maxPrice: updateJob.maxPrice,
                     deadline: updateJob.deadline,
