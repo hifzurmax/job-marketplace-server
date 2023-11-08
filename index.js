@@ -60,25 +60,7 @@ async function run() {
 
 
         //Auth related API
-        app.post('/jwt', async (req, res) => {
-            const user = req.body;
-            const token = jwt.sign(user, process.env.SECRETE, {
-                expiresIn: '1h'
-            })
-            res
-                .cookie('token', token, {
-                    httpOnly: true,
-                    secure: true,
-                    sameSite: 'none'
-                })
-                .send({ success: true })
-        })
-
-        app.post('/logout', (req, res) => {
-            const user = req.body;
-            console.log('loging out', user);
-            res.clearCookie('token', { maxAge: 0 }).send({ success: true });
-        })
+       
 
 
 
