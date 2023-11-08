@@ -105,8 +105,6 @@ async function run() {
             }
             let query = {};
             if (req.query?.email) {
-                console.log(req.query.email);
-
                 query = { emailBidder: req.query.email };
                 console.log('query',query.emailBidder);
             }
@@ -115,11 +113,8 @@ async function run() {
             res.send(result);
         });
 
-        //Problem : 03
 
         app.get('/bidrequests', async (req, res) => {
-            
-            console.log(req.query);
             if (req.query?.email) {
                 query = { emailBuyer: req.query?.email };
             }
@@ -129,13 +124,7 @@ async function run() {
 
 
 
-        app.get('/jobs/:category', async (req, res) => {
-            const category = req.params.category;
-            const query = { category: category };
-            const result = await jobsCollection.find(query).toArray();
-            res.send(result);
-        });
-
+        // ekene
 
 
         app.get('/job/:id', async (req, res) => {
