@@ -53,7 +53,7 @@ const verifyToken = (req, res, next) => {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         const jobsCollection = client.db('taskHub').collection('jobs')
         const bidCollection = client.db('taskHub').collection('bids')
@@ -73,15 +73,22 @@ async function run() {
                 })
                 .send({ success: true })
         })
-    
-        app.post('/logout', (req, res) => {
+
+        // app.post('/logout', (req, res) => {
+        //     const user = req.body;
+        //     console.log('loging out', user);
+        //     res.clearCookie('token', { maxAge: 0 }).send({ success: true });
+        // })
+
+
+        // Logout
+        app.post('/logout', async (req, res) => {
             const user = req.body;
-            console.log('loging out', user);
-            res.clearCookie('token', { maxAge: 0 }).send({ success: true });
+            console.log('logging out', user);
+            res
+                .clearCookie('token', { maxAge: 0, sameSite: 'none', secure: true })
+                .send({ success: true })
         })
-
-
-
 
 
         //Secure APIs
@@ -106,7 +113,6 @@ async function run() {
             let query = {};
             if (req.query?.email) {
                 query = { emailBidder: req.query.email };
-                console.log('query',query.emailBidder);
             }
             const result = await bidCollection.find(query).toArray();
             console.log(result);
@@ -121,6 +127,21 @@ async function run() {
             const result = await bidCollection.find(query).toArray();
             res.send(result);
         });
+
+
+        app.patch('/accept/:id', async(req, res) => {
+            const id = req. params.id;
+            const filter = {_id: new ObjectId(id)};
+            const accept = req.body;
+            console.log(accept);
+            const updateDoc = {
+                $set: {
+                    status: accept.status
+                },
+            };
+            const result = await bidCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
 
 
 
