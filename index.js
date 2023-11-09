@@ -130,13 +130,25 @@ async function run() {
 
 
         app.patch('/accept/:id', async(req, res) => {
-            const id = req. params.id;
+            const id = req.params.id;
             const filter = {_id: new ObjectId(id)};
             const accept = req.body;
-            console.log(accept);
             const updateDoc = {
                 $set: {
                     status: accept.status
+                },
+            };
+            const result = await bidCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
+
+        app.patch('/reject/:id', async(req, res) => {
+            const id = req.params.id;
+            const filter = {_id: new ObjectId(id)};
+            const reject = req.body;
+            const updateDoc = {
+                $set: {
+                    status: reject.status
                 },
             };
             const result = await bidCollection.updateOne(filter, updateDoc);
